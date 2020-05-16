@@ -1,6 +1,7 @@
 package com.ua.serveping.service.models.domains;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -25,16 +26,18 @@ public class Users {
     private String emailId;
 
     @Column
+    @JsonIgnore
     private String password;
 
     @Column
+    @JsonIgnore
     private Boolean active;
 
     @Column
     private Timestamp createdAt;
 
 
-    @ManyToMany(cascade = CascadeType.MERGE)
+    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})

@@ -10,3 +10,5 @@ spring:
     validate-on-migrate: true
   jpa:
     show-sql: true
+jwt:
+  secret: 

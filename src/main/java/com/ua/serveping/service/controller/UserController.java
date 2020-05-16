@@ -1,6 +1,6 @@
 package com.ua.serveping.service.controller;
 
-import com.ua.serveping.service.models.dto.UserReq;
+import com.ua.serveping.service.models.dto.UserRegReq;
 import com.ua.serveping.service.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +15,8 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody UserReq userReq) {
-        userService.register(userReq);
+    public ResponseEntity register(@RequestBody UserRegReq userRegReq) {
+        userService.register(userRegReq);
         return ResponseEntity.ok().build();
     }
 
