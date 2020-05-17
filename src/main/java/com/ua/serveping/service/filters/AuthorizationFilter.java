@@ -6,7 +6,12 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.ua.serveping.service.models.domains.Users;
+import com.ua.serveping.service.repo.UserRepo;
+import com.ua.serveping.service.security.threadlocal.LocalContext;
+import com.ua.serveping.service.security.threadlocal.LocalContextHolder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,6 +37,9 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     @Value("${jwt.secret}")
     private String SECRET;
 
+    @Autowired
+    private UserRepo userRepo;
+
     public void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain chain) throws IOException, ServletException {
         String token = httpServletRequest.getHeader("Authorization");
         boolean exclude = httpServletRequest.getRequestURI().matches("/user/register");
@@ -39,16 +47,17 @@ public class AuthorizationFilter extends OncePerRequestFilter {
             try {
                 JWTVerifier verifier = JWT.require(Algorithm.HMAC512(this.SECRET.getBytes())).build();
                 DecodedJWT jwt = verifier.verify(token.replace("Bearer ", ""));
-                Claim sub = jwt.getClaim("emailId");
+                Claim emailId = jwt.getClaim("emailId");
                 Claim roles = jwt.getClaim("roles");
 
                 List<SimpleGrantedAuthority> authorities = Stream.of(roles.asArray(String.class))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
-
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(sub.asString(), null, authorities);
+                Users users = userRepo.findByEmailId(emailId.asString()).orElseThrow(() -> new RuntimeException("Invalid User"));
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(emailId.asString(), null, authorities);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                LocalContextHolder.setContextThreadLocal(new LocalContext(users));
             } catch (JWTVerificationException ex) {
                 log.error("Exception authentication", ex);
             } catch (Exception ex) {

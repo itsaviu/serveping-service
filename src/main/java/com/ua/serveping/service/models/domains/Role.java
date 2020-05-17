@@ -9,7 +9,7 @@ import java.util.List;
 
 
 /*
- * @name ROLE_ADMIN, ROLE_USER
+ * @checkValue ROLE_ADMIN, ROLE_USER
  */
 @Entity
 @Table(name = "roles")

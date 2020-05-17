@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -15,7 +17,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody UserRegReq userRegReq) {
+    public ResponseEntity register(@Valid @RequestBody UserRegReq userRegReq) {
         userService.register(userRegReq);
         return ResponseEntity.ok().build();
     }

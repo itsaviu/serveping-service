@@ -1,9 +1,13 @@
 package com.ua.serveping.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.OkHttpClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -20,9 +24,12 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 @EnableSwagger2
+@EnableAsync
+@EnableScheduling
 public class ServiceApplication {
 
 
@@ -38,6 +45,24 @@ public class ServiceApplication {
         return new CorsFilter(source);
     }
 
+
+    @Bean
+    public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
+        ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
+        threadPoolTaskScheduler.setPoolSize(5);
+        threadPoolTaskScheduler.setThreadNamePrefix("ThreadPoolTaskScheduler");
+        return threadPoolTaskScheduler;
+    }
+
+    @Bean
+    public OkHttpClient okHttpClient() {
+        return new OkHttpClient
+                .Builder()
+                .connectTimeout(5 * 60 * 1000, TimeUnit.MILLISECONDS)
+                .readTimeout(5 * 60 * 1000, TimeUnit.MILLISECONDS)
+                .writeTimeout(5 * 60 * 1000, TimeUnit.MILLISECONDS)
+                .build();
+    }
 
     @Bean
     public ObjectMapper objectMapper() {
@@ -72,7 +97,6 @@ public class ServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(ServiceApplication.class, args);
     }
-
 
 
 }

@@ -1,6 +1,6 @@
 create table users(
 id bigint primary key auto_increment,
-email_id varchar(200) not null,
+email_id varchar(200) not null unique,
 username varchar(200) not null,
 password text not null,
 active boolean not null,

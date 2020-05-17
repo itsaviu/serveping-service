@@ -6,15 +6,14 @@ import com.ua.serveping.service.models.domains.Users;
 import com.ua.serveping.service.models.dto.UserRegReq;
 import com.ua.serveping.service.repo.RoleRepo;
 import com.ua.serveping.service.repo.UserRepo;
-import com.ua.serveping.service.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -29,8 +28,12 @@ public class UserService {
     private BCryptPasswordEncoder cryptPasswordEncoder;
 
     public void register(UserRegReq userRegReq) {
-        Role role = roleRepo.findByName(Constants.ROLE_ADMIN).orElseThrow(() -> new RuntimeException("Not able to find the described role"));
-        userRepo.save(new Users(userRegReq.getUsername(), userRegReq.getEmailId(), cryptPasswordEncoder.encode(userRegReq.getPassword()), true, Timestamp.valueOf(LocalDateTime.now()), Collections.singletonList(role)));
+        List<Role> roles = roleRepo.findByNameIn(userRegReq.getRoles());
+        Optional<Users> user = userRepo.findByEmailId(userRegReq.getEmailId());
+        if (user.isPresent()) {
+            throw new RuntimeException("User Already exist");
+        }
+        userRepo.save(new Users(userRegReq.getUsername(), userRegReq.getEmailId(), cryptPasswordEncoder.encode(userRegReq.getPassword()), true, Timestamp.valueOf(LocalDateTime.now()), roles));
     }
 
     public List<Users> fetchUser() {
