@@ -7,10 +7,10 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class UserRegReq {
-    private String emailId;
+public class UserRegReq extends UserReq{
+
     private String username;
-    private String password;
+
     @RoleConstraint
     private List<String> roles;
 }

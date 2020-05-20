@@ -29,11 +29,11 @@ public class UserService {
 
     public void register(UserRegReq userRegReq) {
         List<Role> roles = roleRepo.findByNameIn(userRegReq.getRoles());
-        Optional<Users> user = userRepo.findByEmailId(userRegReq.getEmailId());
+        Optional<Users> user = userRepo.findByEmailId(userRegReq.getEmail());
         if (user.isPresent()) {
             throw new RuntimeException("User Already exist");
         }
-        userRepo.save(new Users(userRegReq.getUsername(), userRegReq.getEmailId(), cryptPasswordEncoder.encode(userRegReq.getPassword()), true, Timestamp.valueOf(LocalDateTime.now()), roles));
+        userRepo.save(new Users(userRegReq.getUsername(), userRegReq.getEmail(), cryptPasswordEncoder.encode(userRegReq.getPassword()), true, Timestamp.valueOf(LocalDateTime.now()), roles));
     }
 
     public List<Users> fetchUser() {

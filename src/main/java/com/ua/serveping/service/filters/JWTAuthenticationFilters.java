@@ -1,6 +1,7 @@
 package com.ua.serveping.service.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ua.serveping.service.models.dto.UserReq;
 import com.ua.serveping.service.security.JWTSecurityProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +47,9 @@ public class JWTAuthenticationFilters extends UsernamePasswordAuthenticationFilt
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try {
-            String username = request.getParameter("username");
-            String password = request.getParameter("password");
+            UserReq userReq = objectMapper.readValue(request.getReader(), UserReq.class);
+            String username = userReq.getEmail();
+            String password = userReq.getPassword();
             UsernamePasswordAuthenticationToken usernamePasswordAuthentication = new UsernamePasswordAuthenticationToken(username, password);
             return authenticationManager.authenticate(usernamePasswordAuthentication);
 
